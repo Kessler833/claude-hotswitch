@@ -252,7 +252,7 @@ try {
       $cur = Current-Profile
       $names = @(Get-SavedAccounts | ForEach-Object Name)
       if (-not $names) { 'No accounts saved yet.'; break }
-      foreach ($n in $names) { if ($n -eq $cur) { "* $n (aktiv)" } else { "  $n" } }
+      foreach ($n in $names) { if ($n -eq $cur) { "* $n (active)" } else { "  $n" } }
       if (-not $cur) { '(the signed-in account is not saved)' }
     }
     'json' {
