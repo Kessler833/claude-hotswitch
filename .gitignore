@@ -1,4 +1,4 @@
-# never commit logins or local state (they live in %LOCALAPPDATA%\claude-hotswitch anyway)
+# never commit logins or local state (they live in %USERPROFILE%\.claude-hotswitch anyway)
 profiles/
 backup-original/
 pre-switch/

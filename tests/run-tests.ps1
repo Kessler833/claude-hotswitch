@@ -132,7 +132,16 @@ Check 'new while signed out saves none'  ($code -eq 0 -and -not (Test-Path "$T\s
 Run use account1
 Check 'use unknown account fails'        ($code -eq 1)
 
-Write-Host '10. the log stays small'
+Write-Host '10. lasterror tells the mod why a switch stopped'
+Reset; Login A; Who Alex
+Run5 lasterror
+Check 'no error: empty answer'           ($code -eq 0 -and $out.Trim() -eq '{}')
+Run use nobody
+Run5 lasterror
+$le = $out | ConvertFrom-Json
+Check 'error and its age reported'       ($le.error -match "No saved account 'nobody'" -and $le.ageSeconds -lt 30)
+
+Write-Host '11. the log stays small'
 Reset; Login A; Who Alex
 [IO.File]::WriteAllLines("$T\state\hotswitch.log", [string[]](1..20000 | ForEach-Object { "line $_ xxxxxxxxxxxxxxxxxxxx" }))
 Run new

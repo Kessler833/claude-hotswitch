@@ -72,7 +72,7 @@ Commands: `/account` (show/hide), `/account list`, `/account <name>`, `/account 
 
 Claude Desktop keeps its sign-in in two places inside its data folder: the cookie database `Network\Cookies` and the login entries in `config.json` (`oauth:tokenCache`, `oauth:tokenCacheV2`, `lastKnownAccountUuid`). Everything else – settings, Claude Code sessions, chats on disk – is the same for every account.
 
-Hotswitch saves exactly those login parts per account (in `%LOCALAPPDATA%\claude-hotswitch\profiles`) and swaps them:
+Hotswitch saves exactly those login parts per account (in `%USERPROFILE%\.claude-hotswitch\profiles` – deliberately outside AppData, which the Microsoft Store build of Claude virtualizes for its child processes) and swaps them:
 
 1. The plugin (a Claude Code *mod*: a hooks module that draws the button and the list) starts `scripts\launch.ps1` detached via WMI, so it survives Claude closing.
 2. `scripts\hotswitch.ps1` closes Claude Desktop (the cookie file is locked while it runs), saves the signed-in login under its account (matched by account id), puts the target account's login in place – with a snapshot and rollback – and starts Claude again through a `claude://` link (`claude://code/new`, or `claude://resume?session=<id>` for a transfer).
@@ -95,7 +95,7 @@ Sessions are shared between accounts: the transcript lives in `~/.claude/project
 powershell -NoProfile -ExecutionPolicy Bypass -File uninstall.ps1
 ```
 
-Add `-RemoveSavedLogins` to also delete `%LOCALAPPDATA%\claude-hotswitch`.
+Add `-RemoveSavedLogins` to also delete `%USERPROFILE%\.claude-hotswitch` (and the folder 1.0.x used, `%LOCALAPPDATA%\claude-hotswitch`).
 
 ## Development
 

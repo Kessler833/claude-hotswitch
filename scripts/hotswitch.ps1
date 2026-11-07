@@ -29,12 +29,40 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # Where things are:
-#   state (saved logins, log): %LOCALAPPDATA%\claude-hotswitch, or $env:HOTSWITCH_HOME
+#   state (saved logins, log): %USERPROFILE%\.claude-hotswitch, or $env:HOTSWITCH_HOME
 #   Claude's data folder:      found below, or $env:HOTSWITCH_DATA
 # HOTSWITCH_TEST=<folder>: work on a copy (folder\data, folder\state) and never touch Claude
+#
+# Why not %LOCALAPPDATA%: the Microsoft Store (MSIX) build of Claude Desktop runs its child
+# processes - this plugin's quick reads included - with AppData virtualized, so their writes
+# there land in a hidden per-app copy (Packages\Claude_...\LocalCache\Local) that the switch
+# itself, started outside the app, never sees. The user profile outside AppData is not
+# virtualized, so both sides see the same folder.
 $Test     = $env:HOTSWITCH_TEST
-$Root     = if ($Test) { Join-Path $Test 'state' } elseif ($env:HOTSWITCH_HOME) { $env:HOTSWITCH_HOME } else { Join-Path $env:LOCALAPPDATA 'claude-hotswitch' }
+$Root     = if ($Test) { Join-Path $Test 'state' } elseif ($env:HOTSWITCH_HOME) { $env:HOTSWITCH_HOME } else { Join-Path $env:USERPROFILE '.claude-hotswitch' }
 New-Item -ItemType Directory -Force $Root | Out-Null
+# 1.0.x kept its state in %LOCALAPPDATA%\claude-hotswitch: bring saved accounts over once.
+# Both places are read (the real one, and the app's hidden copy when this runs inside the app),
+# and nothing is overwritten.
+if (-not $Test -and -not $env:HOTSWITCH_HOME) {
+  $olds = @(
+    (Join-Path $env:LOCALAPPDATA 'claude-hotswitch'),
+    (Join-Path $env:LOCALAPPDATA 'Packages\Claude_pzs8sxrjxfjjc\LocalCache\Local\claude-hotswitch')
+  )
+  foreach ($old in $olds) {
+    $op = Join-Path $old 'profiles'
+    if (-not (Test-Path $op)) { continue }
+    foreach ($d in Get-ChildItem $op -Directory -ErrorAction SilentlyContinue) {
+      $dst = Join-Path $Root "profiles\$($d.Name)"
+      if ((Test-Path (Join-Path $d.FullName 'auth.json')) -and -not (Test-Path $dst)) {
+        New-Item -ItemType Directory -Force (Split-Path $dst) | Out-Null
+        Copy-Item $d.FullName $dst -Recurse
+      }
+    }
+    $ob = Join-Path $old 'backup-original'
+    if ((Test-Path $ob) -and -not (Test-Path (Join-Path $Root 'backup-original'))) { Copy-Item $ob (Join-Path $Root 'backup-original') -Recurse }
+  }
+}
 $Profiles = Join-Path $Root 'profiles'
 $ActiveF  = Join-Path $Root 'active.txt'
 $LogF     = Join-Path $Root 'hotswitch.log'
@@ -255,8 +283,22 @@ try {
       foreach ($n in $names) { if ($n -eq $cur) { "* $n (active)" } else { "  $n" } }
       if (-not $cur) { '(the signed-in account is not saved)' }
     }
+    'lasterror' {
+      # for the mod: did the switch it just started fail? {"error": "...", "ageSeconds": n} or {}
+      $out = [ordered]@{}
+      if (Test-Path $LogF) {
+        $last = Get-Content $LogF -Tail 1
+        if ($last -match '^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)  ERROR: (.*)$') {
+          $at = [datetime]::ParseExact($Matches[1], 'yyyy-MM-dd HH:mm:ss', [Globalization.CultureInfo]::InvariantCulture)
+          $out.error = $Matches[2]
+          $out.ageSeconds = [int]((Get-Date) - $at).TotalSeconds
+        }
+      }
+      $j = ConvertTo-Json -Compress -InputObject $out
+      [regex]::Replace($j, '[^\x00-\x7F]', { param($m) '\u{0:x4}' -f [int][char]$m.Value })
+    }
     'json' {
-      $list = @(Get-SavedAccounts | ForEach-Object { [ordered]@{ name = $_.Name; label = (Get-Label $_.FullName) } })
+      $list =@(Get-SavedAccounts | ForEach-Object { [ordered]@{ name = $_.Name; label = (Get-Label $_.FullName) } })
       # the app's language (Settings > Language), for the mod's texts
       $locale = ''
       if ((Test-Path $Config) -and [IO.File]::ReadAllText($Config) -match '"locale"\s*:\s*"([^"]+)"') { $locale = $Matches[1] }

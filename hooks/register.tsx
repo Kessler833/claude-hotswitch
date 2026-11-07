@@ -6,7 +6,7 @@ import type { Account, Accounts } from '../types'
 // The swap itself lives in PowerShell scripts outside the app: Claude Desktop has to be
 // closed for it (the cookie file is locked while it runs), so launch.ps1 starts
 // hotswitch.ps1 detached; it swaps the login and starts Claude again.
-// the scripts ship inside this plugin (scripts/); saved logins live in %LOCALAPPDATA%\claude-hotswitch
+// the scripts ship inside this plugin (scripts/); saved logins live in %USERPROFILE%\.claude-hotswitch
 const scriptPath = ($: Engine, file: string) => [$.plugin.root, 'scripts', file].join('\\')
 // Windows PowerShell 5 (always there) for the quick reads; the swap itself runs in pwsh 7
 const PS = 'powershell.exe'
@@ -662,7 +662,25 @@ async function launch($: Engine, action: string, name = ''): Promise<string> {
     ? tr(locale, 'restarting')
     : tr(locale, 'startFailed', { code: r.exitCode, detail: (r.stderr || r.stdout).slice(0, 200) })
   await update($, status, () => msg)
+  if (r.exitCode === 0) void watchForFailure($, locale)
   return msg
+}
+
+// A switch closes Claude within seconds. If Claude is still here after a while, the switch
+// stopped early (it logs why): show that instead of "restarting" forever.
+async function watchForFailure($: Engine, locale: string): Promise<void> {
+  await $.clock.sleep(12000)
+  const r = await script($, ['lasterror'])
+  try {
+    const p = JSON.parse(r.stdout.trim() || '{}') as { error?: string; ageSeconds?: number }
+    if (p.error && (p.ageSeconds ?? 999) < 30) {
+      lastLaunchAt = 0
+      await update($, status, () => tr(locale, 'startFailed', { code: 1, detail: String(p.error).slice(0, 200) }))
+      await refresh($)
+    }
+  } catch {
+    // no answer: leave the message as it is
+  }
 }
 
 // Removes a saved account that is not active (after the person confirmed it in the list).

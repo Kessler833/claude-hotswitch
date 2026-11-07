@@ -9,7 +9,8 @@ $script = Join-Path $PSScriptRoot 'hotswitch.ps1'
 # hotswitch.ps1 uses it to label an account it saves.
 $who = ''
 try { $who = ((& (Join-Path $PSScriptRoot 'whoami.ps1')) | ConvertFrom-Json).label } catch {}
-$state = if ($env:HOTSWITCH_HOME) { $env:HOTSWITCH_HOME } else { Join-Path $env:LOCALAPPDATA 'claude-hotswitch' }
+# same folder as hotswitch.ps1 (outside AppData: the Store app virtualizes AppData for its children)
+$state = if ($env:HOTSWITCH_HOME) { $env:HOTSWITCH_HOME } else { Join-Path $env:USERPROFILE '.claude-hotswitch' }
 New-Item -ItemType Directory -Force $state | Out-Null
 $lf = Join-Path $state 'current-label.txt'
 if ($who) { [IO.File]::WriteAllText($lf, "$who".Trim(), (New-Object Text.UTF8Encoding $false)) }

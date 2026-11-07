@@ -39,7 +39,7 @@ Then tell the person: **quit Claude Desktop completely and reopen it**, open a C
 
 ## Operating it from a shell (optional)
 
-All state is in `%LOCALAPPDATA%\claude-hotswitch` (override with `HOTSWITCH_HOME`). The scripts are in the plugin folder under `scripts\`.
+All state is in `%USERPROFILE%\.claude-hotswitch` (override with `HOTSWITCH_HOME`). The scripts are in the plugin folder under `scripts\`.
 
 | Command (from the plugin's `scripts` folder) | Effect |
 |---|---|
@@ -54,6 +54,6 @@ Switching restarts Claude Desktop, which ends any agent running inside it. Ask t
 
 ## Safety rules for agents
 
-- Never print, copy or upload anything from `%LOCALAPPDATA%\claude-hotswitch\profiles` or Claude's `config.json` / `Network\Cookies`: they hold login tokens.
+- Never print, copy or upload anything from `%USERPROFILE%\.claude-hotswitch\profiles` or Claude's `config.json` / `Network\Cookies`: they hold login tokens.
 - Do not decrypt tokens. Account names come from the UI (`scripts\whoami.ps1`, UI Automation).
 - Run the tests after changing a script: `pwsh -NoProfile -File tests\run-tests.ps1` (fake data only).

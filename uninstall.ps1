@@ -1,5 +1,5 @@
 <#
-  Removes the Hotswitch plugin. Saved logins in %LOCALAPPDATA%\claude-hotswitch are kept
+  Removes the Hotswitch plugin. Saved logins in %USERPROFILE%\.claude-hotswitch are kept
   unless you pass -RemoveSavedLogins.
     powershell -NoProfile -ExecutionPolicy Bypass -File uninstall.ps1 [-RemoveSavedLogins]
   Keep this file ASCII-only (Windows PowerShell 5 reads it).
@@ -16,7 +16,8 @@ if (-not $cli) { Write-Host 'No claude CLI found.' -ForegroundColor Red; exit 1 
 & $cli plugin uninstall 'hotswitch@hotswitch'
 & $cli plugin marketplace remove hotswitch
 if ($RemoveSavedLogins) {
-  $state = Join-Path $env:LOCALAPPDATA 'claude-hotswitch'
-  if (Test-Path $state) { Remove-Item $state -Recurse -Force; Write-Host "Removed $state" }
+  foreach ($state in @((Join-Path $env:USERPROFILE '.claude-hotswitch'), (Join-Path $env:LOCALAPPDATA 'claude-hotswitch'))) {
+    if (Test-Path $state) { Remove-Item $state -Recurse -Force; Write-Host "Removed $state" }
+  }
 }
 Write-Host 'Hotswitch removed. Restart Claude Desktop.' -ForegroundColor Green
