@@ -64,7 +64,7 @@ Tell Claude Code (or any coding agent with a shell): *“Install Hotswitch from 
   <em>The account list (illustration, account names are examples).</em>
 </p>
 
-From then on: **👤 Accounts → click an account.** Or **Transfer this session →** to continue the current chat in the other account (handy when one account's usage limit is reached).
+From then on: **👤 Accounts → click an account.** Or **Transfer this session →** to continue the current chat in the other account (e.g. when you move a task from your personal to your work account).
 
 Commands: `/account` (show/hide), `/account list`, `/account <name>`, `/account transfer <name>`, `/account new`, `/account label <name> <text>`, `/account delete <name>`, `/account help`.
 
@@ -111,4 +111,4 @@ Claude Desktop account switcher · switch Claude accounts · multiple Claude acc
 
 ## License
 
-[MIT](LICENSE) © Kessler833
+[MIT](LICENSE) © Hannes Kapsch

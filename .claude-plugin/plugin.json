@@ -1,6 +1,6 @@
 {
   "name": "hotswitch",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Account switcher for the Claude Desktop app on Windows: switch between several Claude accounts (e.g. two Pro plans) with one click, without signing in again, and take a Claude Code session along to the other account.",
   "author": {
     "name": "Kessler833",
@@ -20,5 +20,6 @@
     "mod",
     "plugin"
   ],
-  "types": "./types/index.d.ts"
+  "types": "./types/index.d.ts",
+  "icon": "./.claude-plugin/icon.png"
 }
