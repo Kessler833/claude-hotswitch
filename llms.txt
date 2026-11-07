@@ -1,0 +1,19 @@
+# Hotswitch
+
+> Account switcher for the Claude Desktop app on Windows (unofficial). Switch between several Claude accounts (e.g. two Claude Pro subscriptions) with one click, without signing in again, and transfer the current Claude Code session to the other account. A Claude Code plugin (hooks module) plus PowerShell scripts.
+
+Install: `/plugin install hotswitch --marketplace Kessler833/claude-hotswitch` in a terminal Claude Code session, or `claude plugin marketplace add Kessler833/claude-hotswitch` then `claude plugin install hotswitch@hotswitch`, or double-click install.cmd. Restart Claude Desktop, open a Code session, send a message, click "Accounts" bottom right next to the model name.
+
+## Docs
+
+- [README](https://github.com/Kessler833/claude-hotswitch/blob/main/README.md): what it does, install, first use, how it works, limits
+- [AGENTS.md](https://github.com/Kessler833/claude-hotswitch/blob/main/AGENTS.md): exact install and operation steps for AI coding agents
+- [install.ps1](https://github.com/Kessler833/claude-hotswitch/blob/main/install.ps1): installer (-Yes for non-interactive, -DryRun)
+
+## Code
+
+- [hooks/register.tsx](https://github.com/Kessler833/claude-hotswitch/blob/main/hooks/register.tsx): the plugin (Accounts button, account list, /account command, 17 languages)
+- [scripts/hotswitch.ps1](https://github.com/Kessler833/claude-hotswitch/blob/main/scripts/hotswitch.ps1): saves and swaps the login (Network\Cookies + oauth entries in config.json), rollback, lock
+- [scripts/launch.ps1](https://github.com/Kessler833/claude-hotswitch/blob/main/scripts/launch.ps1): starts the switch detached via WMI
+- [scripts/whoami.ps1](https://github.com/Kessler833/claude-hotswitch/blob/main/scripts/whoami.ps1): reads the signed-in account name via UI Automation
+- [tests/run-tests.ps1](https://github.com/Kessler833/claude-hotswitch/blob/main/tests/run-tests.ps1): 38 checks on fake data

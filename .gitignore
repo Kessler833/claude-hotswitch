@@ -1,0 +1,19 @@
+# never commit logins or local state (they live in %LOCALAPPDATA%\claude-hotswitch anyway)
+profiles/
+backup-original/
+pre-switch/
+current-label.txt
+active.txt
+*.lock
+*.log
+*.tmp
+
+# written by Claude Code for the editor
+.claude-plugin/types/
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*~
+*.swp

@@ -1,0 +1,14 @@
+{
+  "name": "hotswitch",
+  "owner": {
+    "name": "Kessler833"
+  },
+  "plugins": [
+    {
+      "name": "hotswitch",
+      "source": "./",
+      "description": "Switch the Claude Desktop app (Windows) between several Claude accounts with one click and take a Claude Code session along."
+    }
+  ],
+  "description": "Hotswitch: a one-click account switcher for the Claude Desktop app on Windows (unofficial)."
+}
